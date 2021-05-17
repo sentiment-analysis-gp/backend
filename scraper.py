@@ -66,11 +66,14 @@ def scrap_data(url):
     product_id = split_url[1].split("/")[0]
     reviews_url = split_url[0] + "/product-reviews/" + product_id + "/ref=cm_cr_arp_d_paging_btm_2?ie=UTF8%26reviewerType=all_reviews"
     pages = []
+    reviews = []
     while reviews_url is not None:
         data = scrape(reviews_url)
         pages.append(data)
         if data == {}:
-            return jsonify(pages)
+            return jsonify(reviews)
+        print(data)
+        reviews = reviews + data["reviews"]
         reviews_url = data["next_page"]
 
-    return jsonify(pages)
+    return jsonify(reviews)
