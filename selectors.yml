@@ -48,6 +48,9 @@ average_rating:
 number_of_reviews:
     css: 'div[data-hook="total-review-count"] span.a-size-base'
     type: Text
+total_ratings_and_reviews:
+    css: 'div[data-hook="cr-filter-info-review-rating-count"] span'
+    type: Text
 histogram:
     css: tr.a-histogram-row
     multiple: true

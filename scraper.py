@@ -17,10 +17,12 @@ def scrape(url):
         'upgrade-insecure-requests': '1',
         'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        "Accept-Encoding": "gzip, deflate",
         'sec-fetch-site': 'none',
         'sec-fetch-mode': 'navigate',
         'sec-fetch-dest': 'document',
         'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
+        "Connection": "close",
     }
 
     # Download the page using requests
@@ -67,13 +69,20 @@ def scrap_data(url):
     reviews_url = split_url[0] + "/product-reviews/" + product_id + "/ref=cm_cr_arp_d_paging_btm_2?ie=UTF8%26reviewerType=all_reviews"
     pages = []
     reviews = []
+    output_data = {}
     while reviews_url is not None:
         data = scrape(reviews_url)
         pages.append(data)
         if data == {}:
-            return jsonify(reviews)
-        print(data)
+            break
+        output_data["average_rating"] = data["average_rating"]
+        output_data["histogram"] = data["histogram"]
+        output_data["number_of_reviews"] = data["number_of_reviews"]
+        output_data["total_ratings_and_reviews"] = data["total_ratings_and_reviews"]
+        output_data["product_image"] = data["product_image"]
+        output_data["product_title"] = data["product_title"]
         reviews = reviews + data["reviews"]
         reviews_url = data["next_page"]
 
-    return jsonify(reviews)
+    output_data["reviews"] = reviews
+    return jsonify(output_data)
