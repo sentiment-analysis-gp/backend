@@ -1,3 +1,4 @@
+import collections
 import pickle
 import nltk
 import re
@@ -177,15 +178,18 @@ def predict_reviews(reviews):
     SVM = pickle.load(open("models/SVM.pkl", 'rb'))
     processed_reviews = []
     for i, review in enumerate(reviews):
-        processed_reviews.append(preprocessing(review))
+        processed_reviews.append(preprocessing(review["body"].strip()))
 
     tfidf = TfidfVectorizer(ngram_range=(1, 2), min_df=0.01, max_df=0.8)
-    tfidf.fit(reviews)
-    vectorized = tfidf.transform(reviews)
+    tfidf.fit(processed_reviews)
+    vectorized = tfidf.transform(processed_reviews)
     ngrams = open("models/ngrams.txt", "r").read().split(",")
     dummy = pd.DataFrame(vectorized.todense(), columns=tfidf.get_feature_names())
     dummy = dummy.reindex(labels=ngrams, axis=1)
     dummy.fillna(0, inplace=True)
 
-    print(SVM.predict(dummy))
-
+    prediction = SVM.predict(dummy).tolist()
+    return {
+        "total_count": len(reviews),
+        "analysis": collections.Counter(prediction),
+    }
