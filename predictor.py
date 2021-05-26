@@ -178,7 +178,7 @@ def predict_reviews(reviews):
     SVM = pickle.load(open("models/SVM.pkl", 'rb'))
     processed_reviews = []
     for i, review in enumerate(reviews):
-        processed_reviews.append(preprocessing(review["body"].strip()))
+        processed_reviews.append(preprocessing(review["review"].strip()))
 
     tfidf = TfidfVectorizer(ngram_range=(1, 2), min_df=0.01, max_df=0.8)
     tfidf.fit(processed_reviews)
