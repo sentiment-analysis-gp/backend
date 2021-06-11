@@ -38,10 +38,10 @@ def get_product_reviews(product_id):
         if len(new_page_reviews) == 0:
             break
         for review in new_page_reviews:
-            if detect(review) != "en":
+            if detect(review['review']) != "en":
                 continue
             else:
-                reviews = reviews.append(review)
+                reviews.append(review)
         page = json["next_page"]
     return reviews
 
