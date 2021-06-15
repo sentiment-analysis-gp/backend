@@ -1,12 +1,14 @@
 import requests
 from langdetect import detect
 
+from constants import rapid_api_key
+
 
 def get_product_info(product_id):
     url = "https://amazon-product-reviews-keywords.p.rapidapi.com/product/details"
     querystring = {"asin": product_id}
     headers = {
-        'x-rapidapi-key': "",
+        'x-rapidapi-key': rapid_api_key,
         'x-rapidapi-host': "amazon-product-reviews-keywords.p.rapidapi.com"
     }
     response = requests.request("GET", url, headers=headers, params=querystring)

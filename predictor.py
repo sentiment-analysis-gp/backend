@@ -1,8 +1,8 @@
-import collections
 import pickle
 import nltk
 import re
 import pandas as pd
+from collections import Counter
 
 from nltk import WordNetLemmatizer
 from nltk.corpus import wordnet, stopwords
@@ -189,7 +189,26 @@ def predict_reviews(reviews):
     dummy.fillna(0, inplace=True)
 
     prediction = SVM.predict(dummy).tolist()
+    pos_sample = ""
+    neg_sample = ""
+    neu_sample = ""
+    for i in range(len(reviews)):
+        if pos_sample != "" and neg_sample != "" and neu_sample != "":
+            break
+        if pos_sample == "" and prediction[i] == "POSITIVE":
+            pos_sample = reviews[i]["review"]
+        if neg_sample == "" and prediction[i] == "NEGATIVE":
+            neg_sample = reviews[i]["review"]
+        if neu_sample == "" and prediction[i] == "NEUTRAL":
+            neu_sample = reviews[i]["review"]
+
+    counter = Counter(prediction),
     return {
         "total_count": len(reviews),
-        "analysis": collections.Counter(prediction),
+        "POSITIVE": counter[0]["POSITIVE"],
+        "NEGATIVE": counter[0]["NEGATIVE"],
+        "NEUTRAL": counter[0]["NEUTRAL"],
+        "pos_sample": pos_sample,
+        "neg_sample": neg_sample,
+        "neu_sample": neu_sample,
     }
