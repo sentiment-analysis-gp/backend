@@ -36,6 +36,8 @@ def get_product_reviews(product_id):
         }
         response = requests.request("GET", url, headers=headers, params=querystring)
         json = response.json()
+        if "reviews" not in json:
+            break
         new_page_reviews = json["reviews"]
         if len(new_page_reviews) == 0:
             break
@@ -46,4 +48,3 @@ def get_product_reviews(product_id):
                 reviews.append(review)
         page = json["next_page"]
     return reviews
-
