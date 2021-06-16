@@ -203,10 +203,14 @@ def predict_reviews(reviews):
             neu_sample = reviews[i]["review"]
 
     counter = Counter(prediction),
+    pos_count = counter[0]["POSITIVE"]
+    neg_count = counter[0]["NEGATIVE"]
+    model_rating = (pos_count - neg_count) / len(reviews) * 2 + 3
     return {
         "total_count": len(reviews),
-        "POSITIVE": counter[0]["POSITIVE"],
-        "NEGATIVE": counter[0]["NEGATIVE"],
+        "model_rating": model_rating,
+        "POSITIVE": pos_count,
+        "NEGATIVE": neg_count,
         "NEUTRAL": counter[0]["NEUTRAL"],
         "pos_sample": pos_sample,
         "neg_sample": neg_sample,
