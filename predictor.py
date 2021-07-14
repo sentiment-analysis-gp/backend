@@ -207,7 +207,7 @@ def predict_reviews(reviews):
     neg_count = counter[0]["NEGATIVE"]
     model_rating = (pos_count - neg_count) / len(reviews) * 2 + 3
     formatter = "{0:.2f}"
-    model_rating = formatter.format(model_rating)
+    model_rating = float(formatter.format(model_rating))
     return {
         "total_count": len(reviews),
         "model_rating": model_rating,
