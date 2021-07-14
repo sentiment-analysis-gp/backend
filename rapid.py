@@ -14,6 +14,9 @@ def get_product_info(product_id):
     response = requests.request("GET", url, headers=headers, params=querystring)
     json = response.json()
     product_data = json["product"]
+    if int(product_data["price"]["current_price"]) == 0:
+        product_data["price"]["current_price"] = product_data["price"]["before_price"]
+    product_data["price"]["current_price"] = float(product_data["price"]["current_price"])
     return {
         "title": product_data["title"],
         "images": product_data["images"],
