@@ -4,6 +4,9 @@ import re
 import pandas as pd
 from collections import Counter
 
+import tensorflow
+from keras.preprocessing.sequence import pad_sequences
+from tensorflow.keras.models import load_model
 from nltk import WordNetLemmatizer
 from nltk.corpus import wordnet, stopwords
 from sklearn.svm._libsvm import predict
@@ -175,36 +178,31 @@ def vectorize(reviews):
 
 
 def predict_reviews(reviews):
-    SVM = pickle.load(open("models/SVM.pkl", 'rb'))
+    f = open("models/tokens.json", "r")
+    tokenizer = tensorflow.keras.preprocessing.text.tokenizer_from_json(f.read())
+    f.close()
+    model = load_model("models/rnn_model.h5")
     processed_reviews = []
     for i, review in enumerate(reviews):
         processed_reviews.append(preprocessing(review["review"].strip()))
 
-    tfidf = TfidfVectorizer(ngram_range=(1, 2), min_df=0.01, max_df=0.8)
-    tfidf.fit(processed_reviews)
-    vectorized = tfidf.transform(processed_reviews)
-    ngrams = open("models/ngrams.txt", "r").read().split(",")
-    dummy = pd.DataFrame(vectorized.todense(), columns=tfidf.get_feature_names())
-    dummy = dummy.reindex(labels=ngrams, axis=1)
-    dummy.fillna(0, inplace=True)
-
-    prediction = SVM.predict(dummy).tolist()
+    padding = pad_sequences(tokenizer.texts_to_sequences(processed_reviews), maxlen=100)
+    prediction = model.predict(padding)
+    pos_count = 0
+    neg_count = 0
     pos_sample = ""
     neg_sample = ""
     neu_sample = ""
     for i in range(len(reviews)):
-        if pos_sample != "" and neg_sample != "" and neu_sample != "":
-            break
-        if pos_sample == "" and prediction[i] == "POSITIVE":
-            pos_sample = reviews[i]["review"]
-        if neg_sample == "" and prediction[i] == "NEGATIVE":
-            neg_sample = reviews[i]["review"]
-        if neu_sample == "" and prediction[i] == "NEUTRAL":
-            neu_sample = reviews[i]["review"]
+        if prediction[i][1] > prediction[i][0]:
+            if pos_count != "":
+                pos_sample = reviews[i]["review"]
+            pos_count += 1
+        else:
+            if neg_count != "":
+                neg_sample = reviews[i]["review"]
+            neg_count += 1
 
-    counter = Counter(prediction),
-    pos_count = counter[0]["POSITIVE"]
-    neg_count = counter[0]["NEGATIVE"]
     model_rating = (pos_count - neg_count) / len(reviews) * 2 + 3
     formatter = "{0:.2f}"
     model_rating = float(formatter.format(model_rating))
@@ -213,7 +211,7 @@ def predict_reviews(reviews):
         "model_rating": model_rating,
         "POSITIVE": pos_count,
         "NEGATIVE": neg_count,
-        "NEUTRAL": counter[0]["NEUTRAL"],
+        "NEUTRAL": 0,
         "pos_sample": pos_sample,
         "neg_sample": neg_sample,
         "neu_sample": neu_sample,
